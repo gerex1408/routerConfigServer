@@ -52,7 +52,7 @@ app.post("/login",(req,res)=>{
 
 //ENDPOINTS DE CONFIGURACIÓ
 app.get("/dhcp",verifyJWT,(req,res)=>{
-    const { stdout, stderr, code } = shell.exec('ssh xarxes@8.0.2.1;cat ~/etc/dhcp/dhcpd.conf | grep subnet;cat ~/etc/dhcp/dhcpd.conf | grep range', { silent: true })
+    const { stdout, stderr, code } = shell.exec('sshpass -p xarxes ssh xarxes@8.0.2.1;cat ~/etc/dhcp/dhcpd.conf | grep subnet;cat ~/etc/dhcp/dhcpd.conf | grep range', { silent: true })
     if(code===0){
         const stdoutArray = stdout.split(" ")
         const ipXarxa = stdoutArray[1]
@@ -84,7 +84,7 @@ app.post("/dhcp",verifyJWT,(req,res)=>{ //POTSER S'HAURIEN D'ELIMINAR LES IP TAB
     /*if (shell.exec('ssh xarxes@8.0.2.1;echo '+contingutFitxerConfig+' > /etc/dhcp/dhcpd.conf',{silent:true}).code !== 0){
         res.status(409).send("Not able to execute the configuration command")
     }*/
-    if (shell.exec('ssh xarxes@8.0.2.1;echo "'+contingutFitxerConfig+'" > ~/etc/dhcp/dhcpd.conf',{silent:true}).code !== 0){
+    if (shell.exec('sshpass -p xarxes ssh xarxes@8.0.2.1;echo "'+contingutFitxerConfig+'" > ~/etc/dhcp/dhcpd.conf',{silent:true}).code !== 0){
         res.status(409).send("Not able to execute the configuration command")
     }
     else{
@@ -93,7 +93,7 @@ app.post("/dhcp",verifyJWT,(req,res)=>{ //POTSER S'HAURIEN D'ELIMINAR LES IP TAB
 })
 
 app.get("/ipTables",verifyJWT,(req,res)=>{
-    const { stdout, stderr, code } = shell.exec('ssh xarxes@8.0.2.1;sudo iptables -t nat -L -v -n | grep SNAT', { silent: true })
+    const { stdout, stderr, code } = shell.exec('sshpass -p xarxes ssh xarxes@8.0.2.1;sudo iptables -t nat -L -v -n | grep SNAT', { silent: true })
     if(code===0){
         let stdoutArray = stdout.split("\n")
         stdoutArray.pop
@@ -108,7 +108,7 @@ app.post("/ipTables",verifyJWT,(req,res)=>{
     const origen = req.body.origen
     const desti = req.body.desti
     const interficie = req.body.interficie   //destí no té /xx
-    if (shell.exec('ssh xarxes@8.0.2.1;sudo iptables -t nat -A POSTROUTING -s ' +origen+'-o '+interficie+' -j SNAT --to-source '+desti,{silent:true}).code !== 0){
+    if (shell.exec('sshpass -p xarxes ssh xarxes@8.0.2.1;sudo iptables -t nat -A POSTROUTING -s ' +origen+'-o '+interficie+' -j SNAT --to-source '+desti,{silent:true}).code !== 0){
         res.status(409).send("Not able to execute the configuration command")
     }
     else{
@@ -117,7 +117,7 @@ app.post("/ipTables",verifyJWT,(req,res)=>{
 })
 
 app.delete("/ipTables",verifyJWT,(req,res)=>{
-    if (shell.exec('ssh xarxes@8.0.2.1;sudo iptables -t nat -F',{silent:true}).code !== 0){
+    if (shell.exec('sshpass -p xarxes ssh xarxes@8.0.2.1;sudo iptables -t nat -F',{silent:true}).code !== 0){
         res.status(409).send("Not able to execute the configuration command")
     }
     else{
@@ -126,7 +126,7 @@ app.delete("/ipTables",verifyJWT,(req,res)=>{
 })
 
 app.get("/forwarding",verifyJWT,(req,res)=>{
-    const { stdout, stderr, code } = shell.exec('ssh xarxes@8.0.2.1;sysctl net.ipv4.ip_forward', { silent: true })
+    const { stdout, stderr, code } = shell.exec('sshpass -p xarxes ssh xarxes@8.0.2.1;sysctl net.ipv4.ip_forward', { silent: true })
     if(code===0){
         const state = stdout.split(" = ")[1].replace(/(\r\n|\n|\r)/gm, "")
         res.send({state:state})
@@ -137,7 +137,7 @@ app.get("/forwarding",verifyJWT,(req,res)=>{
 })
 
 app.post("/forwarding",verifyJWT,(req,res)=>{
-    if (shell.exec('ssh xarxes@8.0.2.1;sudo sysctl net.ipv4.ip_forward='+req.body.state,{silent:true}).code !== 0){
+    if (shell.exec('sshpass -p xarxes ssh xarxes@8.0.2.1;sudo sysctl net.ipv4.ip_forward='+req.body.state,{silent:true}).code !== 0){
         res.status(409).send("Not able to execute the configuration command")
     }
     else{
