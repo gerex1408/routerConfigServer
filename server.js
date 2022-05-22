@@ -4,9 +4,9 @@ app.use(express.json());
 var shell = require('shelljs');
 const path = require('path');
 
-app.use(express.static(path.join("/home/gerard/Desktop/RouterConfigWeb/client", 'build')));
+app.use(express.static(path.join("/home/chacho/RouterConfigWeb/routerConfigClient", 'build')));
 
-const ROUTER_PASSWORD = "password" //AIXÒ NO ÉS FA ! S'HA DE TROBAR LA MANERA DE FER-HO BÉ
+const ROUTER_PASSWORD = "password"
 let XARXA_CONFIGURABLE = ""
 let PREFIX_XARXA  = ""
 
@@ -81,9 +81,6 @@ app.post("/dhcp",verifyJWT,(req,res)=>{ //POTSER S'HAURIEN D'ELIMINAR LES IP TAB
     const inici = req.body.inici
     const final = req.body.final
     const contingutFitxerConfig = "ddns-update-style none;\noption domain-name 'example.org';\noption domain-name-servers ns1.example.org, ns2.example.org;\ndefault-lease-time 600;\nmax-lease-time 7200;\nauthoritative;\nlog-facility local7;\nsubnet "+ip+" netmask "+mask+" {\n\trange "+inici+" "+final+";\n\toption routers 8.0.1.1;\n}"
-    /*if (shell.exec('ssh xarxes@8.0.2.1;echo '+contingutFitxerConfig+' > /etc/dhcp/dhcpd.conf',{silent:true}).code !== 0){
-        res.status(409).send("Not able to execute the configuration command")
-    }*/
     if (shell.exec('sshpass -p xarxes ssh xarxes@8.0.2.1;echo "'+contingutFitxerConfig+'" > ~/etc/dhcp/dhcpd.conf',{silent:true}).code !== 0){
         res.status(409).send("Not able to execute the configuration command")
     }
@@ -147,7 +144,7 @@ app.post("/forwarding",verifyJWT,(req,res)=>{
 
 
 app.get('*', (req,res) => {
-    res.sendFile(path.join("/home/gerard/Desktop/RouterConfigWeb/client", 'build/index.html'));
+    res.sendFile(path.join("/home/chacho/RouterConfigWeb/routerConfigClient", 'build/index.html'));
 });
 
 
